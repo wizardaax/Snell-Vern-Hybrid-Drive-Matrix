@@ -205,4 +205,6 @@ This project merges functionality from:
 
 ## License
 
-MIT License
+MIT License - see the [LICENSE](LICENSE) file for details.
+
+Copyright (c) 2025 Adam a snellman
