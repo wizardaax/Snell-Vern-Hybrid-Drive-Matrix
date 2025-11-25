@@ -1,0 +1,78 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "snell-vern-matrix"
+version = "0.1.0"
+description = "Unified Drive Matrix Engine combining recursive field computations, phase-state tracking, and mathematical sequence analysis"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "wizardaax"},
+]
+keywords = [
+    "drive-matrix",
+    "recursive-field",
+    "phyllotaxis",
+    "golden-angle",
+    "lucas-numbers",
+    "fibonacci",
+    "phase-engine",
+    "symbolic-processing"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+]
+
+[project.urls]
+Homepage = "https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix"
+Repository = "https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix"
+Issues = "https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/snell_vern_matrix"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/README.md",
+    "/pyproject.toml",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-v"
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
