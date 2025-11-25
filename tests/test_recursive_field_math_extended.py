@@ -8,8 +8,6 @@ This test suite covers edge cases and error conditions for:
 - Signatures (signature_summary)
 """
 
-import math
-
 import pytest
 
 from snell_vern_matrix.recursive_field_math import (

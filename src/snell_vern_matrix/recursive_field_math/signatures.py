@@ -21,7 +21,8 @@ Properties:
 
    Verification:
    - 17 cannot be written as 4x + 7y (x,y ≥ 0)
-   - 18 = 4×0 + 7×2 + 4 = 4 + 7×2 (can be represented, but also 18 = 4×4 + 7×0 + 2... actually 18 = 7×2 + 4×1)
+   - 18 = 4×0 + 7×2 + 4 = 4 + 7×2 (can be represented,
+     but also 18 = 7×2 + 4×1)
    - All integers ≥ 18 can be represented
 
 3. **Egyptian Fraction**: 1/4 + 1/7 + 1/11 = 149/308
