@@ -13,7 +13,10 @@ def ratio(n: int) -> float:
 
 
 def ratio_error_bounds(n: int):
-    """Return (lower, upper) bounds for |L_{n+1}/L_n - PHI| using stated inequalities."""
+    """Return (lower, upper) bounds for |L_{n+1}/L_n - PHI|.
+
+    Uses stated inequalities.
+    """
     if n < 1:
         raise ValueError("n must be >= 1")
     Ln = L(n)

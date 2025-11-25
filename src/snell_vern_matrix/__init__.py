@@ -17,13 +17,13 @@ from .drive_matrix import DriveMatrix, MatrixState
 from .glyph_phase_engine import GlyphPhaseEngine, PhaseState
 from .recursive_field import angle, golden_angle, position, radius
 from .recursive_field_math import (
-    F,
     GF_F,
     GF_L,
-    L,
     PHI,
     PSI,
     ROOT_SCALE,
+    F,
+    L,
     egypt_4_7_11,
     lucas_ratio_cfrac,
     r_theta,

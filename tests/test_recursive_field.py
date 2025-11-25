@@ -37,7 +37,7 @@ class TestRadius:
     def test_radius_invalid_index(self):
         """Test radius raises error for non-positive indices."""
         import pytest
-        
+
         with pytest.raises(ValueError, match="positive"):
             radius(0)
 
@@ -84,7 +84,7 @@ class TestPosition:
     def test_position_invalid_index(self):
         """Test position raises error for non-positive indices."""
         import pytest
-        
+
         with pytest.raises(ValueError):
             position(0)
 
