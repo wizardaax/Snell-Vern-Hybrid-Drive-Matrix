@@ -36,17 +36,13 @@ class TestRadius:
 
     def test_radius_invalid_index(self):
         """Test radius raises error for non-positive indices."""
-        try:
+        import pytest
+        
+        with pytest.raises(ValueError, match="positive"):
             radius(0)
-            assert False, "Should have raised ValueError"
-        except ValueError as e:
-            assert "positive" in str(e).lower()
 
-        try:
+        with pytest.raises(ValueError, match="positive"):
             radius(-1)
-            assert False, "Should have raised ValueError"
-        except ValueError as e:
-            assert "positive" in str(e).lower()
 
 
 class TestAngle:
@@ -87,14 +83,10 @@ class TestPosition:
 
     def test_position_invalid_index(self):
         """Test position raises error for non-positive indices."""
-        try:
+        import pytest
+        
+        with pytest.raises(ValueError):
             position(0)
-            assert False, "Should have raised ValueError"
-        except ValueError:
-            pass
 
-        try:
+        with pytest.raises(ValueError):
             position(-1)
-            assert False, "Should have raised ValueError"
-        except ValueError:
-            pass
