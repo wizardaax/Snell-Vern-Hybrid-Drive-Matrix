@@ -20,7 +20,19 @@ keywords = [
     "lucas-numbers",
     "fibonacci",
     "phase-engine",
-    "symbolic-processing"
+    "symbolic-processing",
+    "logic-engine",
+    "recursive-math",
+    "cryptography",
+    "ternary",
+    "ternary-logic",
+    "golden-ratio",
+    "field-structures",
+    "egyptian-fractions",
+    "frobenius-number",
+    "number-theory",
+    "generating-functions",
+    "continued-fractions",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",

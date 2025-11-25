@@ -28,6 +28,7 @@ from .recursive_field_math import (
 
 class MatrixState(Enum):
     """Enumeration of drive matrix operational states."""
+
     IDLE = "idle"
     COMPUTING = "computing"
     FIELD_ANALYSIS = "field_analysis"
@@ -53,10 +54,7 @@ class DriveMatrix:
         self.phase_engine = GlyphPhaseEngine()
         self.computation_results: dict[str, Any] = {}
         self.field_data: list[tuple[float, float]] = []
-        self.sequence_cache: dict[str, dict[int, int]] = {
-            "fibonacci": {},
-            "lucas": {}
-        }
+        self.sequence_cache: dict[str, dict[int, int]] = {"fibonacci": {}, "lucas": {}}
 
     def process_input(self, symbolic_input: str) -> MatrixState:
         """
@@ -175,7 +173,7 @@ class DriveMatrix:
             "ratios": ratios,
             "error_bounds": bounds,
             "signature": signature_summary(),
-            "egyptian_fraction": egypt_4_7_11()
+            "egyptian_fraction": egypt_4_7_11(),
         }
 
         self.computation_results["lucas_analysis"] = result
@@ -197,7 +195,7 @@ class DriveMatrix:
             "field_samples": [
                 {"n": n, "radius": radius(n), "angle": rf_angle(n)}
                 for n in range(1, 11)
-            ]
+            ],
         }
 
     def get_status(self) -> dict[str, Any]:
@@ -213,7 +211,7 @@ class DriveMatrix:
             "field_data_count": len(self.field_data),
             "cached_fibonacci": len(self.sequence_cache["fibonacci"]),
             "cached_lucas": len(self.sequence_cache["lucas"]),
-            "computation_results_keys": list(self.computation_results.keys())
+            "computation_results_keys": list(self.computation_results.keys()),
         }
 
     def reset(self) -> None:
