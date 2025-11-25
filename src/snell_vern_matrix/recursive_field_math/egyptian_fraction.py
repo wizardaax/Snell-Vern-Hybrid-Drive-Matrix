@@ -11,7 +11,7 @@ The triplet (L₃, L₄, L₅) = (4, 7, 11) has the remarkable property:
 
 Finding the common denominator:
     LCD(4, 7, 11) = 4 × 7 × 11 = 308
-    
+
 Computing the sum:
     1/4 = 77/308
     1/7 = 44/308
@@ -40,17 +40,17 @@ The representation of 2/n as sums of unit fractions was particularly important.
 def egypt_4_7_11():
     """
     Compute the exact Egyptian fraction sum 1/4 + 1/7 + 1/11.
-    
+
     Returns the result as an irreducible fraction (numerator, denominator).
-    
+
     Mathematical derivation:
         1/4 + 1/7 + 1/11
         = (77 + 44 + 28) / 308  [common denominator: 4×7×11 = 308]
         = 149/308               [149 is prime, so this is irreducible]
-    
+
     Returns:
         Tuple of (numerator, denominator) = (149, 308)
-        
+
     Examples:
         >>> num, den = egypt_4_7_11()
         >>> num
@@ -63,12 +63,12 @@ def egypt_4_7_11():
         >>> from fractions import Fraction
         >>> Fraction(1, 4) + Fraction(1, 7) + Fraction(1, 11) == Fraction(149, 308)
         True
-        
+
     Mathematical Note:
         This fraction is related to the Frobenius number F(4,7) = 17.
         The Frobenius number is the largest integer that CANNOT be represented
         as a non-negative integer linear combination of 4 and 7.
-        
+
         The Egyptian fraction 1/4 + 1/7 + 1/11 has connections to:
         - Continued fraction approximations to irrationals
         - Greedy algorithm for Egyptian fraction expansion

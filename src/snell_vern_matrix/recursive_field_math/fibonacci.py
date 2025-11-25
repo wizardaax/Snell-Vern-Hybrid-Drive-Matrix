@@ -26,21 +26,21 @@ from .constants import PHI, PSI
 def F(n: int) -> int:
     """
     Compute the nth Fibonacci number using Binet's formula.
-    
+
     Uses the closed-form expression: F(n) = round((φⁿ - ψⁿ) / √5)
-    
+
     This is exact for moderate n (< 70) due to |ψ| < 1, which makes the
     ψⁿ term negligible. The rounding eliminates floating-point errors.
-    
+
     Args:
         n: The index (must be non-negative)
-        
+
     Returns:
         The nth Fibonacci number
-        
+
     Raises:
         ValueError: If n is negative
-        
+
     Examples:
         >>> F(0)
         0
@@ -50,7 +50,7 @@ def F(n: int) -> int:
         55
         >>> F(20)
         6765
-        
+
     Mathematical Note:
         The growth rate of F(n) is φⁿ/√5, so F(n) ≈ φⁿ/√5 for large n.
         This exponential growth means F(100) has 21 digits.

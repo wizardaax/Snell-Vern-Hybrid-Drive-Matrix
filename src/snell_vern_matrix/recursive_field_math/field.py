@@ -32,26 +32,26 @@ from .constants import PHI, ROOT_SCALE
 def r_theta(n: int) -> tuple[float, float]:
     """
     Compute radial and angular coordinates for field index n.
-    
+
     The field uses a polar coordinate system where:
         r(n) = ROOT_SCALE × √n  (default: 3√n)
         θ(n) = n × φ (in radians)
-    
+
     This creates a spiral pattern where:
     - Radius increases as the square root (spacing increases outward)
     - Angle increments by φ ≈ 1.618 radians ≈ 92.7° per step
-    
+
     Args:
         n: The field index (must be >= 1)
-        
+
     Returns:
         Tuple of (radius, theta) where:
             - radius: float, the radial distance from origin
             - theta: float, the angle in radians (not modulo 2π)
-            
+
     Raises:
         ValueError: If n < 1
-        
+
     Examples:
         >>> r, theta = r_theta(1)
         >>> r
@@ -62,13 +62,13 @@ def r_theta(n: int) -> tuple[float, float]:
         >>> r, theta = r_theta(9)
         >>> r
         9.0
-        
+
     Mathematical Note:
         The √n radius growth ensures constant density in the radial direction
         when combined with the angular progression. This is because the area
         of an annulus grows linearly with n, and we want constant points per
         unit area.
-        
+
         The use of φ (instead of golden angle) creates approximately 360°/92.7° ≈ 3.88
         spirals, which is close to but distinct from the Fibonacci spiral patterns.
     """

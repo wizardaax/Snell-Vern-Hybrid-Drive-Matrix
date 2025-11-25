@@ -34,22 +34,22 @@ from .constants import PHI, PSI
 def L(n: int) -> int:
     """
     Compute the nth Lucas number using the closed-form formula.
-    
+
     Uses: L(n) = round(φⁿ + ψⁿ)
-    
+
     The formula is exact due to the identity φⁿ + ψⁿ being an integer for all n ≥ 0.
     This is because both φ and ψ are algebraic integers (roots of monic polynomial
     with integer coefficients).
-    
+
     Args:
         n: The index (must be non-negative)
-        
+
     Returns:
         The nth Lucas number
-        
+
     Raises:
         ValueError: If n is negative
-        
+
     Examples:
         >>> L(0)
         2
@@ -63,7 +63,7 @@ def L(n: int) -> int:
         11
         >>> L(10)
         123
-        
+
     Mathematical Note:
         L(n) ≈ φⁿ for large n (since |ψⁿ| < 1)
         L(n) = F(n-1) + F(n+1) (relationship to Fibonacci)
