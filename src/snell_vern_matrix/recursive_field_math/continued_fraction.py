@@ -2,7 +2,9 @@ from .lucas import L
 
 
 def lucas_ratio_cfrac(n: int):
-    """Return (numerator, denominator) for L_{n+1}/L_n and its continued-fraction pattern meta.
+    """Return (numerator, denominator) for L_{n+1}/L_n.
+
+    Returns continued-fraction pattern meta.
     Pattern: [1; 1,1,...,1, 3] with (n-2) ones (for n>=2).
     """
     if n < 1:
