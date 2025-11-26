@@ -1,3 +1,7 @@
+# Build Verification Workflow
+# Tests package building (wheels and sdist) on every push
+# Auto-cancels obsolete runs on the same branch/PR
+
 name: Build
 
 on:
@@ -9,6 +13,11 @@ on:
 permissions:
   contents: read
 
+# Auto-cancel in-progress runs for same workflow on same branch/PR
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build Package
@@ -18,21 +27,26 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Set up Python
+    - name: Set up Python 3.12
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
+        cache: 'pip'
         
     - name: Install build dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install build hatchling
+        pip install build hatchling twine
         
-    - name: Build package
+    - name: Build package (wheel and sdist)
       run: |
         python -m build
         
-    - name: Verify build artifacts
+    - name: Verify distributions with twine
+      run: |
+        twine check dist/*
+        
+    - name: Display build artifacts
       run: |
         ls -lh dist/
         

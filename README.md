@@ -1,8 +1,22 @@
 # Snell-Vern Hybrid Drive Matrix
 
+<!-- Build Status Badges -->
+[![Build](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/workflows/Build/badge.svg)](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/actions/workflows/build.yml)
+[![Tests](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/workflows/Tests/badge.svg)](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/actions/workflows/test.yml)
+[![Lint](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/workflows/Lint/badge.svg)](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/actions/workflows/lint.yml)
+[![Security](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/workflows/Security/badge.svg)](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/actions/workflows/security.yml)
+
+<!-- Language Support Badges -->
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![PyPI](https://img.shields.io/pypi/v/snell-vern-matrix)](https://pypi.org/project/snell-vern-matrix/)
+[![Node.js Ready](https://img.shields.io/badge/node.js-ready-orange.svg)](https://nodejs.org/)
+[![Rust Ready](https://img.shields.io/badge/rust-ready-orange.svg)](https://www.rust-lang.org/)
+
+<!-- Code Quality Badges -->
+[![codecov](https://codecov.io/gh/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/branch/main/graph/badge.svg)](https://codecov.io/gh/wizardaax/Snell-Vern-Hybrid-Drive-Matrix)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](tests/)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![OSSF Scorecard](https://api.scorecard.dev/projects/github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/badge)](https://scorecard.dev/viewer/?uri=github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix)
 
 A unified Python engine that combines multiple mathematical and symbolic processing components for recursive field computations, phase-state tracking, and sequence analysis.
 
@@ -352,11 +366,75 @@ Contributions are welcome! Areas of particular interest:
 4. **Additional Applications**: Cryptographic protocols, pattern recognition
 5. **Documentation**: More examples, tutorials, mathematical proofs
 
+### Contribution Guidelines
+
 Please ensure:
 - All tests pass (`pytest`)
 - Code is linted (`ruff check .`)
 - Type hints are added (`mypy src/`)
 - New features include tests and documentation
+- **Commit messages follow [Conventional Commits](https://conventionalcommits.org)** format:
+  - `feat:` for new features
+  - `fix:` for bug fixes
+  - `docs:` for documentation changes
+  - `test:` for test additions/changes
+  - `chore:` for maintenance tasks
+
+### Development Workflow
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feat/my-feature`
+3. Make changes following conventional commits
+4. Run tests: `pytest`
+5. Run linter: `ruff check . && ruff format .`
+6. Push changes and open a Pull Request
+7. Ensure all CI checks pass (Build, Tests, Lint, Security)
+
+## 📦 Publishing & Deployment
+
+### Python Package (PyPI)
+
+Automated publishing to PyPI is configured via GitHub Actions:
+
+1. **Trigger**: Push a semantic version tag (e.g., `v1.0.0`)
+2. **Process**:
+   - Runs comprehensive test suite with coverage requirements (≥80%)
+   - Builds wheel and source distributions
+   - Publishes to PyPI using trusted publishing (OIDC)
+   - Creates GitHub release with artifacts, coverage report, and changelog
+3. **Manual publish**: `python -m build && twine upload dist/*`
+
+### JavaScript Package (npm) - Ready for Activation
+
+When JavaScript/TypeScript files are added:
+
+1. Add `package.json` with semantic-release configuration
+2. Set `NPM_TOKEN` secret in repository settings
+3. Workflow automatically activates on next push
+4. Uses semantic-release for automated versioning and publishing
+
+### Rust Package (crates.io) - Ready for Activation
+
+When Rust files are added:
+
+1. Add `Cargo.toml` with package metadata
+2. Set `CRATES_IO_TOKEN` secret in repository settings
+3. Workflow automatically activates on next push
+4. Publishes to crates.io on tagged releases
+
+See [.github/workflows/](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/tree/main/.github/workflows) for complete CI/CD pipeline documentation, or read [docs/CI_CD_PIPELINE.md](docs/CI_CD_PIPELINE.md) for detailed setup instructions.
+
+## 🔒 Security
+
+This project takes security seriously:
+
+- **Automated security scanning**: Gitleaks, CodeQL, Bandit, pip-audit, OSSF Scorecard
+- **Weekly vulnerability scans**: Scheduled security audits
+- **Dependency review**: Automatic checks on all PRs
+- **No hardcoded secrets**: All credentials managed via GitHub Secrets
+- **Trusted publishing**: OIDC-based PyPI publishing (no API tokens in workflows)
+
+Report security vulnerabilities via [GitHub Security Advisories](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/security/advisories).
 
 ## 📄 License
 

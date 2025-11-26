@@ -1,3 +1,7 @@
+# Code Quality and Linting Workflow
+# Runs Ruff linter, formatter checks, and mypy type checking
+# Auto-cancels obsolete runs on the same branch/PR
+
 name: Lint
 
 on:
@@ -9,6 +13,11 @@ on:
 permissions:
   contents: read
 
+# Auto-cancel in-progress runs for same workflow on same branch/PR
+concurrency:
+  group: lint-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     name: Code Quality Checks
@@ -18,25 +27,26 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Set up Python
+    - name: Set up Python 3.12
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.12'
+        cache: 'pip'  # Cache pip dependencies
         
-    - name: Install dependencies
+    - name: Install linting dependencies
       run: |
         python -m pip install --upgrade pip
         pip install ruff mypy
         
-    - name: Run Ruff linter
+    - name: Run Ruff linter (check for code issues)
       run: |
-        ruff check .
+        ruff check . --output-format=github
         
-    - name: Run Ruff formatter check
+    - name: Run Ruff formatter check (verify code formatting)
       run: |
         ruff format --check .
         
     - name: Run mypy type checker
       run: |
-        mypy src/ --ignore-missing-imports
-      continue-on-error: true
+        mypy src/ --ignore-missing-imports --pretty
+      continue-on-error: true  # Don't fail CI on type errors (informational only)
