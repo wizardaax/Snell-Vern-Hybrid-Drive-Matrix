@@ -197,7 +197,8 @@ jobs:
     
     environment:
       name: crates-io
-      url: https://crates.io/crates/snell-vern-matrix
+      # URL will be active once package is published to crates.io
+      # url: https://crates.io/crates/snell-vern-matrix
     
     steps:
     - name: Checkout code

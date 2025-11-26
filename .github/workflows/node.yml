@@ -161,7 +161,8 @@ jobs:
     
     environment:
       name: npm
-      url: https://www.npmjs.com/package/snell-vern-matrix
+      # URL will be active once package is published to npm
+      # url: https://www.npmjs.com/package/snell-vern-matrix
     
     steps:
     - name: Checkout code
