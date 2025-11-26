@@ -8,22 +8,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Comprehensive documentation in README.md covering mathematical foundations
-- CHANGELOG.md for tracking project history
-- Enhanced docstrings across all modules
-- Inline comments explaining advanced mathematical concepts
-- CI/CD workflows for automated testing, linting, and releases
-- Extended test suite with edge cases and error conditions
-- Security scanning for cryptographic hygiene
+- Comprehensive CI/CD automation with GitHub Actions workflows
+  - **Python PyPI Publishing**: Fully automated PyPI releases on semantic version tags
+    - Pre-publish test coverage validation (≥80% required)
+    - Automated wheel and sdist generation with hatch
+    - Coverage badge generation and upload
+    - GitHub releases with coverage reports, badges, and changelog
+    - Trusted publishing (OIDC) for secure PyPI authentication
+  - **Security Scanning**: Multi-layer security automation
+    - Gitleaks for secret detection
+    - CodeQL for security vulnerability analysis
+    - Bandit for Python security linting
+    - pip-audit for dependency vulnerability scanning
+    - OSSF Scorecard for security best practices
+    - Weekly automated security scans
+  - **Cross-platform Testing**: Test matrix on Ubuntu, Windows, macOS with Python 3.10-3.12
+    - Automated coverage reporting to Codecov
+    - HTML coverage reports as artifacts
+  - **Code Quality**: Automated linting and formatting checks
+    - Ruff linter and formatter
+    - mypy type checking
+  - **Build Verification**: Automated package building and distribution verification
+    - twine checks for PyPI compliance
+  - **Conventional Commits**: Automated validation of commit message format
+    - Semantic commit message enforcement
+    - Helpful guidance for contributors
+  - **JavaScript/npm Pipeline** (Ready for instant activation)
+    - Auto-detects JavaScript/TypeScript files
+    - ESLint linting, Jest testing, cross-platform builds
+    - Semantic-release automation for npm publishing
+    - Secret scanning for hardcoded credentials
+  - **Rust/crates.io Pipeline** (Ready for instant activation)
+    - Auto-detects Rust files and Cargo.toml
+    - Clippy linting, rustfmt formatting, cargo test
+    - Cross-platform builds (Linux, Windows, macOS)
+    - cargo-audit security scanning
+    - Automated crates.io publishing on tags
+    - Documentation generation
+  - **Workflow Optimization**:
+    - Auto-cancellation of obsolete workflow runs
+    - Pip dependency caching for faster runs
+    - Concurrency controls per workflow and branch/PR
+- Comprehensive documentation in README.md
+  - Publishing and deployment section
+  - Security section
+  - Contribution guidelines with conventional commits
+  - Workflow badges for build status, coverage, security
+  - Multi-language pipeline badges (Python, Node.js, Rust)
+  - OSSF Scorecard badge
+- CHANGELOG.md automation details
 
 ### Changed
-- Expanded mathematical background section with detailed explanations
-- Updated README with showcase section highlighting key innovations
-- Enhanced tech stack documentation
-- Improved contribution guidelines
+- Enhanced README.md with comprehensive workflow status badges
+- Updated test workflow with better coverage reporting
+- Improved build workflow with twine verification
+- Enhanced release workflow with multi-job pipeline
+  - Separated test, build, PyPI publish, and GitHub release stages
+  - Added coverage badge and report uploads to releases
+  - Improved version extraction and changelog integration
 
-### Fixed
-- Documentation clarity for complex mathematical concepts
+### Security
+- All workflows scan for hardcoded secrets and credentials
+- No API tokens stored in workflow files (uses GitHub Secrets and OIDC)
+- Regular dependency vulnerability scanning
+- Security-focused CodeQL analysis with extended queries
+- OSSF Scorecard for measuring security best practices
 
 ## [0.1.0] - 2025-01-20
 
