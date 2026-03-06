@@ -45,7 +45,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Mathematics",
 ]
-dependencies = ["regen88-codex"]
+dependencies = ["regen88-codex", "glyph-phase-engine"]
 
 [project.optional-dependencies]
 dev = [

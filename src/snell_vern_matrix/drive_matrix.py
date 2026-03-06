@@ -10,7 +10,7 @@ This module provides the DriveMatrix class that integrates all components:
 from enum import Enum
 from typing import Any
 
-from .glyph_phase_engine import GlyphPhaseEngine, PhaseState
+from glyph_phase_engine import GlyphPhaseEngine, PhaseState
 from .recursive_field import angle as rf_angle
 from .recursive_field import golden_angle, position, radius
 from recursive_field_math import (

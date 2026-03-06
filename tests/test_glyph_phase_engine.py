@@ -1,6 +1,6 @@
 """Tests for the GlyphPhaseEngine."""
 
-from snell_vern_matrix.glyph_phase_engine import GlyphPhaseEngine, PhaseState
+from glyph_phase_engine import GlyphPhaseEngine, PhaseState
 
 
 class TestGlyphPhaseEngine:
