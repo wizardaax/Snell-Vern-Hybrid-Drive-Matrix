@@ -1,6 +1,6 @@
 """Tests for the recursive_field_math module."""
 
-from snell_vern_matrix.recursive_field_math import (
+from recursive_field_math import (
     F,
     L,
     egypt_4_7_11,

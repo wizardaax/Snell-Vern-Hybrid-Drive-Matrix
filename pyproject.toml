@@ -45,7 +45,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Mathematics",
 ]
-dependencies = []
+dependencies = ["regen88-codex"]
 
 [project.optional-dependencies]
 dev = [
@@ -59,6 +59,9 @@ dev = [
 Homepage = "https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix"
 Repository = "https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix"
 Issues = "https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/issues"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/snell_vern_matrix"]

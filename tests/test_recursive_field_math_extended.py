@@ -10,7 +10,7 @@ This test suite covers edge cases and error conditions for:
 
 import pytest
 
-from snell_vern_matrix.recursive_field_math import (
+from recursive_field_math import (
     GF_F,
     GF_L,
     PHI,

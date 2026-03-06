@@ -13,7 +13,7 @@ from typing import Any
 from .glyph_phase_engine import GlyphPhaseEngine, PhaseState
 from .recursive_field import angle as rf_angle
 from .recursive_field import golden_angle, position, radius
-from .recursive_field_math import (
+from recursive_field_math import (
     PHI,
     PSI,
     F,
