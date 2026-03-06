@@ -9,7 +9,6 @@ This test suite covers edge cases and error conditions for:
 """
 
 import pytest
-
 from recursive_field_math import (
     GF_F,
     GF_L,

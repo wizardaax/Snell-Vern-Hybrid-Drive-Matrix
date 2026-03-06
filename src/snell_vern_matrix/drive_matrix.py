@@ -11,8 +11,6 @@ from enum import Enum
 from typing import Any
 
 from glyph_phase_engine import GlyphPhaseEngine, PhaseState
-from .recursive_field import angle as rf_angle
-from .recursive_field import golden_angle, position, radius
 from recursive_field_math import (
     PHI,
     PSI,
@@ -24,6 +22,9 @@ from recursive_field_math import (
     ratio_error_bounds,
     signature_summary,
 )
+
+from .recursive_field import angle as rf_angle
+from .recursive_field import golden_angle, position, radius
 
 
 class MatrixState(Enum):

@@ -13,9 +13,7 @@ Components:
 __version__ = "0.1.0"
 __author__ = "wizardaax"
 
-from .drive_matrix import DriveMatrix, MatrixState
 from glyph_phase_engine import GlyphPhaseEngine, PhaseState
-from .recursive_field import angle, golden_angle, position, radius
 from recursive_field_math import (
     GF_F,
     GF_L,
@@ -31,6 +29,9 @@ from recursive_field_math import (
     ratio_error_bounds,
     signature_summary,
 )
+
+from .drive_matrix import DriveMatrix, MatrixState
+from .recursive_field import angle, golden_angle, position, radius
 
 __all__ = [
     # Drive Matrix
