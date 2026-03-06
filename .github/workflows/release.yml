@@ -38,6 +38,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install git+https://github.com/wizardaax/recursive-field-math-pro.git
+        pip install git+https://github.com/wizardaax/glyph_phase_engine.git
         pip install -e ".[dev]"
         
     - name: Run tests with coverage
