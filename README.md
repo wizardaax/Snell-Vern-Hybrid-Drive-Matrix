@@ -1,10 +1,15 @@
 # Snell-Vern Hybrid Drive Matrix
 
+<!-- Governance Badge -->
+[![Aeon Standards](https://img.shields.io/badge/aeon--standards-v1-blueviolet.svg)](https://github.com/wizardaax/aeon-standards)
+
 <!-- Build Status Badges -->
 [![Build](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/workflows/Build/badge.svg)](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/actions/workflows/build.yml)
 [![Tests](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/workflows/Tests/badge.svg)](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/actions/workflows/test.yml)
 [![Lint](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/workflows/Lint/badge.svg)](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/actions/workflows/lint.yml)
 [![Security](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/workflows/Security/badge.svg)](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/actions/workflows/security.yml)
+[![Aeon Python CI](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/workflows/Aeon%20Python%20CI/badge.svg)](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/actions/workflows/aeon-python-ci.yml)
+[![Aeon Security](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/workflows/Aeon%20Security/badge.svg)](https://github.com/wizardaax/Snell-Vern-Hybrid-Drive-Matrix/actions/workflows/aeon-security.yml)
 
 <!-- Language Support Badges -->
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)

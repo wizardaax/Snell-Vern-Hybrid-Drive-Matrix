@@ -7,8 +7,14 @@ name: Lint
 on:
   push:
     branches: [ main, develop ]
+    paths-ignore:
+      - '**/*.pdf'
+      - '**/*.docx'
   pull_request:
     branches: [ main, develop ]
+    paths-ignore:
+      - '**/*.pdf'
+      - '**/*.docx'
 
 permissions:
   contents: read
