@@ -1,0 +1,36 @@
+# Federated Security Scanning — delegates to the aeon-standards reusable workflow
+# Pinned ref: wizardaax/aeon-standards @ v1
+# To upgrade: change every `@v1` reference below to the desired tag/SHA
+
+name: Aeon Security
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+      - '**/*.pdf'
+      - '**/*.docx'
+  pull_request:
+    branches: [ main, develop ]
+    paths-ignore:
+      - '**/*.pdf'
+      - '**/*.docx'
+  schedule:
+    # Keep the weekly cadence from the local security.yml
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+concurrency:
+  group: aeon-security-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security:
+    name: Security (aeon-standards@v1)
+    uses: wizardaax/aeon-standards/.github/workflows/security.yml@v1
+    secrets: inherit

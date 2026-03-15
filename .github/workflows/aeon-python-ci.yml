@@ -1,0 +1,30 @@
+# Federated Python CI — delegates to the aeon-standards reusable workflow
+# Pinned ref: wizardaax/aeon-standards @ v1
+# To upgrade: change every `@v1` reference below to the desired tag/SHA
+
+name: Aeon Python CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+      - '**/*.pdf'
+      - '**/*.docx'
+  pull_request:
+    branches: [ main, develop ]
+    paths-ignore:
+      - '**/*.pdf'
+      - '**/*.docx'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aeon-python-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-ci:
+    name: Python CI (aeon-standards@v1)
+    uses: wizardaax/aeon-standards/.github/workflows/python-ci.yml@v1
+    secrets: inherit
