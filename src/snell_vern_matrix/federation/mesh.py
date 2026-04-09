@@ -500,7 +500,7 @@ class FederationMesh:
     # ------------------------------------------------------------------
 
     def to_json(self) -> str:
-        """Serialise mesh state to a deterministic JSON string."""
+        """Serialize mesh state to a deterministic JSON string."""
         with self._lock:
             data = {
                 "version": _MESH_VERSION,

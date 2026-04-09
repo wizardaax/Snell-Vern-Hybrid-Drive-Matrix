@@ -5,7 +5,7 @@ Covers:
 - FederationMesh registry, routing, coherence, load balancing, state persistence
 - SnellVernAdapter and RFMProAdapter dispatch, status, recall, fallback
 - CLI 'mesh' subcommand end-to-end
-- 58 tests, all deterministic
+- 79 tests, all deterministic
 """
 
 from __future__ import annotations
