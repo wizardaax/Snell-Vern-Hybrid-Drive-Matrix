@@ -11,13 +11,14 @@ Covers:
 - Persist / load JSON roundtrip
 - Thread safety
 - CLI end-to-end for the ``memory`` subcommand
-- 35+ tests, zero flakiness, fully deterministic
+- 51 tests, zero flakiness, fully deterministic
 """
 
 from __future__ import annotations
 
 import json
 import os
+import pathlib
 
 import pytest
 
@@ -303,8 +304,8 @@ class TestPrune:
 
 
 class TestPersistence:
-    def test_roundtrip(self, tmp_path: pytest.TempPathFactory) -> None:
-        path = str(tmp_path / "mem.json")  # type: ignore[operator]
+    def test_roundtrip(self, tmp_path: pathlib.Path) -> None:
+        path = str(tmp_path / "mem.json")
         m1 = FieldMemory(capacity=100, decay_rate=0.02)
         m1.store("alpha", {"score": 42}, 0.8)
         m1.store("beta", {"name": "test"}, 0.6)
@@ -321,8 +322,8 @@ class TestPersistence:
         assert r is not None
         assert r["data"]["score"] == 42
 
-    def test_persist_creates_valid_json(self, tmp_path: pytest.TempPathFactory) -> None:
-        path = str(tmp_path / "mem2.json")  # type: ignore[operator]
+    def test_persist_creates_valid_json(self, tmp_path: pathlib.Path) -> None:
+        path = str(tmp_path / "mem2.json")
         m = FieldMemory()
         m.store("x", {"v": 1}, 0.5)
         m.persist(path)
@@ -413,9 +414,9 @@ class TestMemoryCLI:
         assert "pruned" in out
 
     def test_cli_memory_store_with_file(
-        self, capsys: pytest.CaptureFixture[str], tmp_path: pytest.TempPathFactory
+        self, capsys: pytest.CaptureFixture[str], tmp_path: pathlib.Path
     ) -> None:
-        fpath = str(tmp_path / "cli_mem.json")  # type: ignore[operator]
+        fpath = str(tmp_path / "cli_mem.json")
         rc = cli_main(
             [
                 "memory",
