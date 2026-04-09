@@ -78,6 +78,34 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Show compact agent map with roles and capabilities",
     )
 
+    # -- mesh subcommand ---------------------------------------------------
+    ms = sub.add_parser(
+        "mesh",
+        help="Cross-repo federation mesh for wizardaax org",
+    )
+    ms_group = ms.add_mutually_exclusive_group(required=True)
+    ms_group.add_argument(
+        "--status",
+        action="store_true",
+        help="Show mesh status: all repos, agents, load, coherence",
+    )
+    ms_group.add_argument(
+        "--dispatch",
+        nargs=2,
+        metavar=("TYPE", "PAYLOAD"),
+        help='Dispatch a task across repos: --dispatch "type" "payload_json"',
+    )
+    ms_group.add_argument(
+        "--balance",
+        action="store_true",
+        help="Show load-balance recommendations across repos",
+    )
+    ms_group.add_argument(
+        "--coherence",
+        action="store_true",
+        help="Show global coherence snapshot across all repos",
+    )
+
     return parser
 
 
@@ -170,6 +198,40 @@ def _run_agents(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_mesh(args: argparse.Namespace) -> int:
+    from .federation.adapters import create_default_mesh
+
+    mesh = create_default_mesh()
+
+    if args.status:
+        status = mesh.get_status()
+        print(json.dumps(status, sort_keys=True, default=str))
+        return 0
+
+    if args.dispatch is not None:
+        task_type_str, payload_str = args.dispatch
+        try:
+            payload = json.loads(payload_str)
+        except json.JSONDecodeError as exc:
+            print(f"error: invalid JSON payload: {exc}", file=sys.stderr)
+            return 1
+        result = mesh.dispatch(task_type_str, payload)
+        print(json.dumps(result, sort_keys=True, default=str))
+        return 0
+
+    if args.balance:
+        balance = mesh.balance_load()
+        print(json.dumps(balance, sort_keys=True, default=str))
+        return 0
+
+    if args.coherence:
+        snapshot = mesh.coherence_snapshot()
+        print(json.dumps(snapshot.to_dict(), sort_keys=True, default=str))
+        return 0
+
+    return 0
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """CLI entry-point.  Returns exit code."""
     parser = _build_parser()
@@ -184,6 +246,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     if args.command == "agents":
         return _run_agents(args)
+
+    if args.command == "mesh":
+        return _run_mesh(args)
 
     parser.print_help()
     return 0
