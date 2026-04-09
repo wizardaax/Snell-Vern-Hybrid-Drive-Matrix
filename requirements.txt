@@ -1,0 +1,2 @@
+git+https://github.com/wizardaax/recursive-field-math-pro.git
+git+https://github.com/wizardaax/glyph_phase_engine.git
