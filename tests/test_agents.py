@@ -9,7 +9,7 @@ Covers:
 - Agent coordination and processing
 - Individual agent specialization
 - CLI integration (agents subcommand)
-- 55+ tests, all deterministic
+- 83 tests, all deterministic
 """
 
 from __future__ import annotations
