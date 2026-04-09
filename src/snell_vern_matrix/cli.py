@@ -13,6 +13,7 @@ import json
 import sys
 from typing import Optional, Sequence
 
+from .memory import FieldMemory
 from .self_model import ConstraintViolation, SelfModel
 
 
@@ -48,6 +49,44 @@ def _build_parser() -> argparse.ArgumentParser:
         "--state",
         action="store_true",
         help="Print current model state as JSON",
+    )
+
+    # -- memory subcommand -------------------------------------------------
+    mem = sub.add_parser(
+        "memory",
+        help="Interact with the associative field memory",
+    )
+    mem_group = mem.add_mutually_exclusive_group(required=True)
+    mem_group.add_argument(
+        "--store",
+        metavar="JSON",
+        help='Store a record: {"key": "...", "data": {...}, "coherence": 0.9}',
+    )
+    mem_group.add_argument(
+        "--recall",
+        metavar="QUERY",
+        help="Recall records matching QUERY (string)",
+    )
+    mem_group.add_argument(
+        "--decay",
+        action="store_true",
+        help="Apply decay to all stored records",
+    )
+    mem_group.add_argument(
+        "--prune",
+        action="store_true",
+        help="Prune records below coherence threshold or over capacity",
+    )
+    mem.add_argument(
+        "--threshold",
+        type=float,
+        default=0.5,
+        help="Recall threshold (default 0.5)",
+    )
+    mem.add_argument(
+        "--file",
+        metavar="PATH",
+        help="Persist/load memory state from PATH (JSON file)",
     )
 
     # -- agents subcommand -------------------------------------------------
@@ -153,6 +192,60 @@ def _run_self_model(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_memory(args: argparse.Namespace) -> int:
+    """Handle the ``memory`` subcommand."""
+    mem = FieldMemory()
+
+    # If a persistence file is specified, pre-load state
+    if args.file:
+        import os
+
+        if os.path.exists(args.file):
+            mem.load(args.file)
+
+    if args.store is not None:
+        try:
+            payload = json.loads(args.store)
+        except json.JSONDecodeError as exc:
+            print(f"error: invalid JSON: {exc}", file=sys.stderr)
+            return 1
+        key = payload.get("key")
+        data = payload.get("data")
+        coherence = payload.get("coherence", 0.5)
+        if not key or not isinstance(data, dict):
+            print(
+                "error: --store requires {key, data, coherence}",
+                file=sys.stderr,
+            )
+            return 1
+        ok = mem.store(str(key), data, float(coherence))
+        print(json.dumps({"stored": ok}, sort_keys=True))
+        if args.file:
+            mem.persist(args.file)
+        return 0
+
+    if args.recall is not None:
+        results = mem.recall(args.recall, threshold=args.threshold)
+        print(json.dumps(results, sort_keys=True))
+        return 0
+
+    if args.decay:
+        count = mem.decay()
+        print(json.dumps({"decayed": count}, sort_keys=True))
+        if args.file:
+            mem.persist(args.file)
+        return 0
+
+    if args.prune:
+        count = mem.prune()
+        print(json.dumps({"pruned": count}, sort_keys=True))
+        if args.file:
+            mem.persist(args.file)
+        return 0
+
+    return 0
+
+
 def _run_agents(args: argparse.Namespace) -> int:
     from .agents.orchestrator import AgentOrchestrator
 
@@ -243,6 +336,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     if args.command == "self-model":
         return _run_self_model(args)
+
+    if args.command == "memory":
+        return _run_memory(args)
 
     if args.command == "agents":
         return _run_agents(args)
