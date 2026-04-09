@@ -8,6 +8,7 @@ Covers:
 - CLI subcommand end-to-end
 - Ternary logic balance tracking across phase transitions
 - 25+ tests covering core paths
+- 55 tests covering core paths
 """
 
 from __future__ import annotations
