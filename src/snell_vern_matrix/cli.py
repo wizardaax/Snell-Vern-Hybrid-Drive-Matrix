@@ -1,8 +1,9 @@
 """
 CLI entry-point for the Snell-Vern Hybrid Drive Matrix.
 
-Provides subcommands for interacting with the SelfModel and DriveMatrix
-from the command line.  Follows existing rfm CLI patterns.
+Provides subcommands for interacting with the SelfModel, DriveMatrix,
+and the 13-agent distributed orchestration system from the command line.
+Follows existing rfm CLI patterns.
 """
 
 from __future__ import annotations
@@ -47,6 +48,34 @@ def _build_parser() -> argparse.ArgumentParser:
         "--state",
         action="store_true",
         help="Print current model state as JSON",
+    )
+
+    # -- agents subcommand -------------------------------------------------
+    ag = sub.add_parser(
+        "agents",
+        help="Interact with the 13-agent distributed orchestration system",
+    )
+    ag_group = ag.add_mutually_exclusive_group(required=True)
+    ag_group.add_argument(
+        "--status",
+        action="store_true",
+        help="Show agent health, workload distribution, and task queue",
+    )
+    ag_group.add_argument(
+        "--dispatch",
+        nargs=2,
+        metavar=("TYPE", "PAYLOAD"),
+        help='Dispatch a task: --dispatch "type" "payload_json"',
+    )
+    ag_group.add_argument(
+        "--balance",
+        action="store_true",
+        help="Run load balancer across all agents",
+    )
+    ag_group.add_argument(
+        "--map",
+        action="store_true",
+        help="Show compact agent map with roles and capabilities",
     )
 
     return parser
@@ -96,6 +125,51 @@ def _run_self_model(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_agents(args: argparse.Namespace) -> int:
+    from .agents.orchestrator import AgentOrchestrator
+
+    orch = AgentOrchestrator()
+
+    if args.status:
+        status = orch.get_status()
+        print(json.dumps(status, sort_keys=True, default=str))
+        return 0
+
+    if args.dispatch is not None:
+        task_type_str, payload_str = args.dispatch
+        try:
+            payload = json.loads(payload_str)
+        except json.JSONDecodeError as exc:
+            print(f"error: invalid JSON payload: {exc}", file=sys.stderr)
+            return 1
+        try:
+            task = orch.dispatch(task_type_str, payload)
+            results = orch.process_all()
+            output = {
+                "task_id": task.task_id,
+                "task_type": task.task_type.value,
+                "assigned_agent": task.assigned_agent,
+                "results": results,
+            }
+            print(json.dumps(output, sort_keys=True, default=str))
+            return 0
+        except (ValueError, RuntimeError) as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 1
+
+    if args.balance:
+        summary = orch.balance_load()
+        print(json.dumps(summary, sort_keys=True))
+        return 0
+
+    if getattr(args, "map", False):
+        agent_map = orch.get_agent_map()
+        print(json.dumps(agent_map, sort_keys=True))
+        return 0
+
+    return 0
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """CLI entry-point.  Returns exit code."""
     parser = _build_parser()
@@ -107,6 +181,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     if args.command == "self-model":
         return _run_self_model(args)
+
+    if args.command == "agents":
+        return _run_agents(args)
 
     parser.print_help()
     return 0
