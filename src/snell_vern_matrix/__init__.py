@@ -31,6 +31,7 @@ from recursive_field_math import (
 )
 
 from .drive_matrix import DriveMatrix, MatrixState
+from .memory import FieldMemory, lucas_phi_hash, validate_sce88
 from .recursive_field import angle, golden_angle, position, radius
 from .self_model import ConstraintViolation, SelfModel, TernaryStability
 
@@ -38,6 +39,10 @@ __all__ = [
     # Drive Matrix
     "DriveMatrix",
     "MatrixState",
+    # Memory
+    "FieldMemory",
+    "lucas_phi_hash",
+    "validate_sce88",
     # Glyph Phase Engine
     "GlyphPhaseEngine",
     "PhaseState",
