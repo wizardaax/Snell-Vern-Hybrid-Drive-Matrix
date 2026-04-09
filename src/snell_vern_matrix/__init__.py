@@ -32,6 +32,7 @@ from recursive_field_math import (
 
 from .drive_matrix import DriveMatrix, MatrixState
 from .recursive_field import angle, golden_angle, position, radius
+from .self_model import ConstraintViolation, SelfModel, TernaryStability
 
 __all__ = [
     # Drive Matrix
@@ -59,5 +60,9 @@ __all__ = [
     "radius",
     "angle",
     "position",
+    # Self-Model
+    "SelfModel",
+    "ConstraintViolation",
+    "TernaryStability",
     "__version__",
 ]
