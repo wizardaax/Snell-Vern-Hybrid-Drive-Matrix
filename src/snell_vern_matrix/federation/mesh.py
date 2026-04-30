@@ -243,12 +243,29 @@ class FederationMesh:
         constraints.
 
         Selection criteria (in order):
+        0. If payload["repo"] is set and that repo supports the task type,
+           route there directly (explicit override).
         1. Repo must support the task type
         2. Repo must be healthy
         3. Repo coherence must be above COHERENCE_THRESHOLD
         4. Among qualifying repos, pick the one with lowest load
         """
         with self._lock:
+            # Explicit override: payload may name a specific repo.
+            override = payload.get("repo") if isinstance(payload, dict) else None
+            if isinstance(override, str) and override:
+                cap = self._registry.get(override)
+                if cap is not None and task_type in cap.task_types:
+                    decision = RoutingDecision(
+                        repo_name=cap.repo_name,
+                        task_type=task_type,
+                        payload=payload,
+                        routed=True,
+                        reason="explicit_repo_override",
+                    )
+                    self._routing_log.append(decision)
+                    return decision
+
             candidates: list[RepoCapability] = []
             for cap in self._registry.values():
                 if task_type in cap.task_types and cap.healthy:

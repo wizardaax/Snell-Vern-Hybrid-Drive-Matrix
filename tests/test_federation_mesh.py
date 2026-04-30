@@ -574,9 +574,15 @@ class TestRFMProAdapter:
 
 
 class TestCreateDefaultMesh:
-    def test_creates_mesh_with_two_repos(self) -> None:
+    def test_creates_mesh_with_ten_repos(self) -> None:
+        # 2 original (snell-vern, rfm-pro) + 1 phase (glyph) + 1 SCE-88
+        # + 1 Codex-AEON + 5 doc/observation repos (recursive-field-math,
+        # ziltrix-sch-core, wizardaax.github.io, rff-agent-logs, sim_outputs).
+        # The 8 rfm-pro submodules (evolve/swarm/select/score/bridge/detect/
+        # self_model/validate) are multiplexed inside RFMProAdapter, NOT
+        # registered as separate repos.
         mesh = create_default_mesh()
-        assert mesh.repo_count == 2
+        assert mesh.repo_count == 10
 
     def test_repos_registered(self) -> None:
         mesh = create_default_mesh()
@@ -595,9 +601,15 @@ class TestCreateDefaultMesh:
         assert result["routed"] is True
 
     def test_status_includes_all_agents(self) -> None:
+        # 13 from snell-vern-hybrid-drive-matrix + 13 from rfm-pro
+        # (RFMProAdapter delegates agent_count to EvolutionEngineAdapter,
+        # which represents the 13 federation agents in EvolutionEngine:
+        # observer, planner, executor, validator, memory, router,
+        # constraint_gate, integrator, evaluator, bridge, sentinel,
+        # recovery, meta_learner).
         mesh = create_default_mesh()
         status = mesh.get_status()
-        assert status["total_agents"] == 13
+        assert status["total_agents"] == 26
 
 
 # =========================================================================
