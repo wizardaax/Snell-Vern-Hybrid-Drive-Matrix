@@ -46,6 +46,11 @@ _KEYWORD_MAP: dict[str, TaskType] = {
     "formula": TaskType.MATH,
     "field": TaskType.FIELD,
     "spiral": TaskType.FIELD,
+    "aeon": TaskType.FIELD,
+    "thrust": TaskType.FIELD,
+    "propuls": TaskType.FIELD,
+    "flyer": TaskType.FIELD,
+    "gravity": TaskType.FIELD,
     "ternary": TaskType.TERNARY,
     "logic": TaskType.TERNARY,
     "observ": TaskType.OBSERVATION,
@@ -269,10 +274,13 @@ class CognitiveCycle:
                 else:
                     payload["action"] = "sequence"
                     payload["n"] = 12
-            # FIELD → r=a√n, θ=nφ phyllotaxis. "analysis" wins if goal mentions
-            # angle/radius specifically; otherwise return the spiral points.
+            # FIELD → r=a√n, θ=nφ phyllotaxis OR AEON Engine thrust simulation.
+            # AEON wins if goal mentions aeon/thrust/propulsion/flyer; otherwise
+            # angle/radius specific → analysis; default → spiral points.
             elif tt is TaskType.FIELD:
-                if any(k in goal_lower for k in ("angle", "radius", "single", "specific")):
+                if any(k in goal_lower for k in ("aeon", "thrust", "propuls", "flyer", "gravity")):
+                    payload["action"] = "aeon"
+                elif any(k in goal_lower for k in ("angle", "radius", "single", "specific")):
                     payload["action"] = "analysis"
                     payload["n"] = 12
                 else:

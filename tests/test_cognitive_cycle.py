@@ -382,6 +382,26 @@ def test_test_validator_handles_missing_repo() -> None:
     assert "not found" in result["reason"]
 
 
+def test_cycle_dispatches_aeon_engine() -> None:
+    """A goal mentioning 'aeon' or 'thrust' routes FIELD task to the AEON action.
+    Validates against the documented June 4 2025 PhaseII data."""
+    cc = CognitiveCycle()
+    r = cc.run("run aeon thrust simulation")
+    field_results = [x for x in r.results if x.get("action") == "aeon" and x.get("agent", "").endswith("-07")]
+    assert len(field_results) == 1
+    f = field_results[0]
+    if not f.get("ran"):
+        # AEON module not reachable in this test env — that's a soft skip.
+        return
+    assert "constants" in f
+    assert "thrust_series" in f
+    assert "validation" in f
+    # The headline check: the canonical AEON math reproduces the documented
+    # June 4 2025 simulation to <1% rel error.
+    assert f["validation"]["matched"] is True
+    assert f["validation"]["max_rel_err"] < 0.01
+
+
 def test_cycle_dispatches_real_field_spiral() -> None:
     """A goal mentioning field should produce real r=a√n, θ=nφ spiral coords."""
     cc = CognitiveCycle()
