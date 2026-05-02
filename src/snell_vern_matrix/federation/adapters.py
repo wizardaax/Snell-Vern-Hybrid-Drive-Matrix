@@ -2050,4 +2050,209 @@ def create_default_mesh() -> Any:
     # bridge / detect / self_model / validate), all routing to repo
     # "recursive-field-math-pro".
 
+    # Register the 4 previously-missing per-repo adapters (Jarvis, MemoryVault, Xova, Ziltrix).
+    # These were gaps surfaced by the 2026-05-02 federation coverage audit — 4 of 11
+    # wizardaax repos had no adapter, so the mesh couldn't route goals to them.
+    for adapter_cls in (JarvisAdapter, MemoryVaultAdapter, XovaAdapter, ZiltrixAdapter):
+        try:
+            ad = adapter_cls()
+            mesh.register_repo(
+                repo_name=ad.repo_name,
+                task_types=ad.supported_task_types,
+                agent_count=ad.agent_count,
+                adapter=ad,
+            )
+        except Exception:
+            # Adapter scaffolds are placeholder; if their repo isn't on disk,
+            # skip registration silently rather than fail the mesh build.
+            continue
+
     return mesh
+
+
+# ── Filesystem-probe adapters (added 2026-05-02 — close 4-of-11 gap) ─────────
+#
+# These four adapters were missing from the federation. Each is a minimal
+# scaffold satisfying RepoAdapter Protocol — enough for FederationMesh routing
+# to recognise the repo as available + report its status. Real dispatch logic
+# (per task_type) can be filled in later as needed; the immediate purpose is
+# closing the coverage gap so RoutingDecision sees all 11 wizardaax repos.
+
+import os as _os
+import time as _time
+from typing import Any as _Any, Optional as _Optional
+
+
+class _FilesystemRepoAdapter:
+    """Shared base for adapters that detect the repo via its filesystem path
+    and answer status() / coherence_score() / current_load() from disk state.
+    Subclasses set ``REPO_NAME``, ``REPO_PATH``, ``TASK_TYPES``, ``AGENT_COUNT``."""
+
+    REPO_NAME: str = ""
+    REPO_PATH: str = ""
+    TASK_TYPES: frozenset[str] = frozenset()
+    AGENT_COUNT: int = 1
+
+    def __init__(self) -> None:
+        self._task_log: dict[str, dict[str, _Any]] = {}
+
+    @property
+    def repo_name(self) -> str:
+        return self.REPO_NAME
+
+    @property
+    def supported_task_types(self) -> frozenset[str]:
+        return self.TASK_TYPES
+
+    @property
+    def agent_count(self) -> int:
+        return self.AGENT_COUNT
+
+    def is_available(self) -> bool:
+        return _os.path.isdir(self.REPO_PATH)
+
+    def coherence_score(self) -> float:
+        # Default: present-on-disk = 0.7 (baseline healthy), missing = 0.0
+        return 0.7 if self.is_available() else 0.0
+
+    def current_load(self) -> float:
+        # No live worker queue; report 0.0 (free). Subclasses can override.
+        return 0.0
+
+    def status(self) -> dict[str, _Any]:
+        return {
+            "repo_name": self.repo_name,
+            "available": self.is_available(),
+            "repo_path": self.REPO_PATH,
+            "task_types": sorted(self.supported_task_types),
+            "agent_count": self.agent_count,
+            "coherence_score": self.coherence_score(),
+            "current_load": self.current_load(),
+            "tasks_logged": len(self._task_log),
+        }
+
+    def dispatch(self, task_type: str, payload: dict[str, _Any]) -> dict[str, _Any]:
+        if not self.is_available():
+            return {"status": "error", "error": f"{self.repo_name} repo not on disk at {self.REPO_PATH}"}
+        if task_type not in self.supported_task_types:
+            return {"status": "rejected", "reason": f"task_type {task_type!r} not in supported set",
+                    "supported": sorted(self.supported_task_types)}
+        # Placeholder dispatch — log + acknowledge. Real per-task logic lives in
+        # the subclass (override this method when the repo gets a callable surface).
+        task_id = f"{self.repo_name}-{int(_time.time()*1000)}"
+        out = {
+            "status": "acknowledged",
+            "task_id": task_id,
+            "task_type": task_type,
+            "repo": self.repo_name,
+            "note": "scaffold adapter — see per-repo adapter to enable real dispatch",
+            "payload_keys": sorted(payload.keys()) if isinstance(payload, dict) else None,
+        }
+        self._task_log[task_id] = out
+        return out
+
+    def recall(self, task_id: str) -> _Optional[dict[str, _Any]]:
+        return self._task_log.get(task_id)
+
+
+class JarvisAdapter(_FilesystemRepoAdapter):
+    """Jarvis voice-butler daemon at C:\\jarvis. Bridge: jarvis_inbox.json /
+    voice_inbox.json. Adapter doesn't restart the daemon — only routes
+    voice / butler-task goals through the existing file bridge."""
+
+    REPO_NAME = "jarvis"
+    REPO_PATH = r"C:\jarvis"
+    TASK_TYPES = frozenset({"voice", "butler", "remind", "weather", "memory_query", "diary"})
+    AGENT_COUNT = 17  # Jarvis has 17 builtin tools (per agi_stack_architecture.md)
+
+    def coherence_score(self) -> float:
+        # Use Jarvis SQLite WAL recency as the liveness proxy (privilege-independent
+        # signal — same approach as D:\temp\jarvis_health.py). Younger = more coherent.
+        if not self.is_available():
+            return 0.0
+        wal = _os.path.expanduser("~") + r"\.local\share\jarvis\jarvis.db-wal"
+        if not _os.path.exists(wal):
+            return 0.4  # daemon may be running without WAL writes lately
+        age_s = _time.time() - _os.path.getmtime(wal)
+        # Linear: <60s = 0.95, 600s = 0.5, >3600s = 0.2
+        if age_s < 60:
+            return 0.95
+        if age_s < 600:
+            return 0.5 + 0.45 * (1 - (age_s - 60) / 540)
+        if age_s < 3600:
+            return 0.2 + 0.3 * (1 - (age_s - 600) / 3000)
+        return 0.2
+
+
+class MemoryVaultAdapter(_FilesystemRepoAdapter):
+    """Append-only memory vault at C:\\memory-vault. Adapter routes
+    snapshot / restore / search goals to the vault."""
+
+    REPO_NAME = "memory-vault"
+    REPO_PATH = r"C:\memory-vault"
+    TASK_TYPES = frozenset({"snapshot", "restore", "vault_search", "vault_status"})
+    AGENT_COUNT = 1
+
+    def coherence_score(self) -> float:
+        if not self.is_available():
+            return 0.0
+        # Count timestamped snapshot dirs as a health signal — more snapshots = healthier
+        try:
+            import re as _re
+            snaps = [d for d in _os.listdir(self.REPO_PATH)
+                     if _re.match(r"\d{8}_\d{6}$", d)]
+            n = len(snaps)
+            if n >= 30:
+                return 0.95
+            if n >= 10:
+                return 0.7
+            if n >= 1:
+                return 0.5
+            return 0.3
+        except OSError:
+            return 0.3
+
+
+class XovaAdapter(_FilesystemRepoAdapter):
+    """Xova Tauri desktop agent at C:\\Xova\\app. Adapter routes UI / chat /
+    dispatch goals via the existing Tauri command surface (xova_run, etc.).
+    Available when the source tree is on disk; the running app is reachable
+    via the file-bridge inboxes (xova_chat_inbox, xova_command_inbox, etc.)."""
+
+    REPO_NAME = "xova"
+    REPO_PATH = r"C:\Xova\app"
+    TASK_TYPES = frozenset({"chat", "ui", "dispatch", "vision", "screen", "panel_toggle"})
+    AGENT_COUNT = 41  # 41 Tauri commands (per agi_stack_architecture.md)
+
+    def coherence_score(self) -> float:
+        if not self.is_available():
+            return 0.0
+        # Probe the Xova chat inbox file freshness — recent activity = high coherence
+        inbox = r"C:\Xova\memory\xova_chat_inbox.json"
+        if not _os.path.exists(inbox):
+            return 0.6
+        age_s = _time.time() - _os.path.getmtime(inbox)
+        if age_s < 300:
+            return 0.95
+        if age_s < 3600:
+            return 0.7
+        return 0.5
+
+
+class ZiltrixAdapter(_FilesystemRepoAdapter):
+    """Ziltrix Sentinel Cognitive Hybridiser at D:\\github\\wizardaax\\ziltrix-sch-core.
+    Houses AEON Engine v2.1 + 41 research PDFs. Adapter routes AEON / glyph /
+    cognition-research goals to the repo's runnable Python module."""
+
+    REPO_NAME = "ziltrix-sch-core"
+    REPO_PATH = r"D:\github\wizardaax\ziltrix-sch-core"
+    TASK_TYPES = frozenset({"aeon", "glyph", "cognition_research", "scale_field", "thrust_sim"})
+    AGENT_COUNT = 1
+
+    def coherence_score(self) -> float:
+        if not self.is_available():
+            return 0.0
+        # Look for the canonical aeon_engine.py module — its presence is the
+        # signal that the runnable substrate is wired.
+        mod = _os.path.join(self.REPO_PATH, "aeon_engine.py")
+        return 0.9 if _os.path.exists(mod) else 0.5

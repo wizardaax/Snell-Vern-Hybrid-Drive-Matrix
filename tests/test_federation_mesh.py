@@ -574,15 +574,19 @@ class TestRFMProAdapter:
 
 
 class TestCreateDefaultMesh:
-    def test_creates_mesh_with_ten_repos(self) -> None:
+    def test_creates_mesh_with_thirteen_repos(self) -> None:
         # 2 original (snell-vern, rfm-pro) + 1 phase (glyph) + 1 SCE-88
         # + 1 Codex-AEON + 5 doc/observation repos (recursive-field-math,
         # ziltrix-sch-core, wizardaax.github.io, rff-agent-logs, sim_outputs).
         # The 8 rfm-pro submodules (evolve/swarm/select/score/bridge/detect/
         # self_model/validate) are multiplexed inside RFMProAdapter, NOT
         # registered as separate repos.
+        # PLUS 3 per-repo adapters added 2026-05-02 to close the federation
+        # coverage gap: jarvis (voice butler daemon), memory-vault (append-only
+        # snapshot store), xova (Tauri desktop agent). The ziltrix-sch-core
+        # adapter overrides the pre-existing doc-style entry. Net: 10 + 3 = 13.
         mesh = create_default_mesh()
-        assert mesh.repo_count == 10
+        assert mesh.repo_count == 13
 
     def test_repos_registered(self) -> None:
         mesh = create_default_mesh()
@@ -607,9 +611,16 @@ class TestCreateDefaultMesh:
         # observer, planner, executor, validator, memory, router,
         # constraint_gate, integrator, evaluator, bridge, sentinel,
         # recovery, meta_learner).
+        # PLUS the 4 per-repo adapters added 2026-05-02:
+        #   - JarvisAdapter:        17 (Jarvis builtin tools)
+        #   - MemoryVaultAdapter:    1
+        #   - XovaAdapter:          41 (Tauri commands per agi_stack_architecture.md)
+        #   - ZiltrixAdapter:        1 (overrides pre-existing doc adapter; baseline 1 agent)
+        # = 26 + 17 + 1 + 41 + 1 = 86. (Doc adapters report agent_count 0,
+        # so adding the Ziltrix adapter on top adds +1 net.)
         mesh = create_default_mesh()
         status = mesh.get_status()
-        assert status["total_agents"] == 26
+        assert status["total_agents"] == 86
 
 
 # =========================================================================
