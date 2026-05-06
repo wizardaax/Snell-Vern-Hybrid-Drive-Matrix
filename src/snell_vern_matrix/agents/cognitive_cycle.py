@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 CognitiveCycle: goal-driven driver above the AgentOrchestrator.
 

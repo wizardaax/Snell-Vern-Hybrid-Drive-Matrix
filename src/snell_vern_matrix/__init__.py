@@ -14,21 +14,26 @@ __version__ = "0.1.0"
 __author__ = "wizardaax"
 
 from glyph_phase_engine import GlyphPhaseEngine, PhaseState
-from recursive_field_math import (
-    GF_F,
-    GF_L,
-    PHI,
-    PSI,
-    ROOT_SCALE,
-    F,
-    L,
-    egypt_4_7_11,
-    lucas_ratio_cfrac,
-    r_theta,
-    ratio,
-    ratio_error_bounds,
-    signature_summary,
-)
+try:
+    from recursive_field_math import (
+        GF_F,
+        GF_L,
+        PHI,
+        PSI,
+        ROOT_SCALE,
+        F,
+        L,
+        egypt_4_7_11,
+        lucas_ratio_cfrac,
+        r_theta,
+        ratio,
+        ratio_error_bounds,
+        signature_summary,
+    )
+except ImportError:  # recursive_field_math not on sys.path
+    GF_F = GF_L = PHI = PSI = ROOT_SCALE = None
+    F = L = egypt_4_7_11 = lucas_ratio_cfrac = None
+    r_theta = ratio = ratio_error_bounds = signature_summary = None
 
 from .drive_matrix import DriveMatrix, MatrixState
 from .memory import FieldMemory, lucas_phi_hash, validate_sce88

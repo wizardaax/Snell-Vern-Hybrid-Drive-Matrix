@@ -18,9 +18,11 @@ def _aeon_summary() -> dict[str, Any] | None:
     canonical layout; we add it to sys.path on first call.
     """
     candidates = [
+        os.environ.get("AEON_ENGINE_PATH", ""),   # env var first — portable override
         r"D:\github\wizardaax\ziltrix-sch-core",
         os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "ziltrix-sch-core"),
     ]
+    candidates = [c for c in candidates if c]  # drop empty strings
     for path in candidates:
         if os.path.isdir(path) and os.path.isfile(os.path.join(path, "aeon_engine.py")):
             if path not in sys.path:

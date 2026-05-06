@@ -12,6 +12,7 @@ Zero new runtime dependencies.
 from __future__ import annotations
 
 import json
+import os as _os
 from typing import Any, Optional, Protocol
 
 from ..agents import COHERENCE_THRESHOLD, TaskType
@@ -457,7 +458,8 @@ class GlyphPhaseAdapter:
         return dict(json.loads(raw))
 
 
-SCE88_REPO_PATH = r"D:\github\wizardaax\SCE-88"
+WIZARDAAX_ROOT = _os.environ.get("WIZARDAAX_ROOT", r"D:\github\wizardaax")
+SCE88_REPO_PATH = _os.environ.get("SCE88_REPO_PATH", _os.path.join(WIZARDAAX_ROOT, "SCE-88"))
 
 
 class SCE88Adapter:
@@ -603,8 +605,7 @@ class SCE88Adapter:
         return dict(json.loads(raw))
 
 
-CODEX_AEON_REPO_PATH = r"D:\github\wizardaax\Codex-AEON-Resonator"
-WIZARDAAX_ROOT = r"D:\github\wizardaax"
+CODEX_AEON_REPO_PATH = _os.environ.get("CODEX_AEON_REPO_PATH", _os.path.join(WIZARDAAX_ROOT, "Codex-AEON-Resonator"))
 
 
 class RepoDocumentAdapter:
@@ -833,12 +834,25 @@ class CodexAeonAdapter:
 
     def _probe_availability(self) -> bool:
         import os
+        import subprocess
+        import sys
 
         if not os.path.isdir(CODEX_AEON_REPO_PATH):
             return False
         for rel in self._PIPELINES.values():
             if not os.path.isfile(os.path.join(CODEX_AEON_REPO_PATH, rel)):
                 return False
+        # Verify numpy + scipy are actually importable; pipeline scripts require both.
+        try:
+            result = subprocess.run(
+                [sys.executable, "-c", "import numpy, scipy"],
+                capture_output=True,
+                timeout=5,
+            )
+            if result.returncode != 0:
+                return False
+        except Exception:
+            return False
         return True
 
     def dispatch(self, task_type: str, payload: dict[str, Any]) -> dict[str, Any]:
@@ -1186,7 +1200,6 @@ class SwarmAdapter:
                     orch.start()
                 results = orch.execute_batch(lambda x: x, [str(i) for i in inputs])
                 result = {"inputs": inputs, "results": results, "status": orch.status()}
-                orch.stop()
             else:
                 return {"status": "error", "error": f"unknown action: {action}"}
 
@@ -1801,10 +1814,10 @@ class SelfModelAdapter:
                 elif action == "integrate":
                     new_data = payload.get("data", "")
                     if not isinstance(new_data, str):
-                        return {"status": "error", "error": "payload['data'] must be a string (JSON-encoded if dict)"}
+                        return {"status": "error", "error": "payload['data'] must be a plain string; sm.integrate() accepts raw text, not parsed dicts"}
                     result = sm.integrate(new_data)
                 elif action == "state":
-                    result = sm.state()
+                    result = sm.state()  # state() is a method on RFM-Pro SelfModel, not a property
                 else:
                     return {"status": "error", "error": f"unknown action: {action}"}
 
@@ -2139,7 +2152,7 @@ class _FilesystemRepoAdapter:
                     "supported": sorted(self.supported_task_types)}
         # Placeholder dispatch — log + acknowledge. Real per-task logic lives in
         # the subclass (override this method when the repo gets a callable surface).
-        task_id = f"{self.repo_name}-{int(_time.time()*1000)}"
+        task_id = _generate_task_id(task_type, payload)
         out = {
             "status": "acknowledged",
             "task_id": task_id,
@@ -2170,10 +2183,16 @@ class JarvisAdapter(_FilesystemRepoAdapter):
         # signal — same approach as D:\temp\jarvis_health.py). Younger = more coherent.
         if not self.is_available():
             return 0.0
-        wal = _os.path.expanduser("~") + r"\.local\share\jarvis\jarvis.db-wal"
-        if not _os.path.exists(wal):
+        # Build path via os.path.join so it is correct on both Windows and Linux.
+        # Jarvis stores its DB at ~/.local/share/jarvis/jarvis.db on both platforms
+        # (Path.home() / ".local" / "share" / "jarvis" in jarvis/config.py).
+        _db = _os.path.join(_os.path.expanduser("~"), ".local", "share", "jarvis", "jarvis.db")
+        wal = _db + "-wal"
+        # Prefer WAL (updated on every SQLite write); fall back to the .db itself.
+        target = wal if _os.path.exists(wal) else (_db if _os.path.exists(_db) else None)
+        if target is None:
             return 0.4  # daemon may be running without WAL writes lately
-        age_s = _time.time() - _os.path.getmtime(wal)
+        age_s = _time.time() - _os.path.getmtime(target)
         # Linear: <60s = 0.95, 600s = 0.5, >3600s = 0.2
         if age_s < 60:
             return 0.95

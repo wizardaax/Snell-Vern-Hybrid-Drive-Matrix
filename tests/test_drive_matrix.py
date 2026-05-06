@@ -20,10 +20,12 @@ class TestDriveMatrix:
         assert result == MatrixState.COMPLETE
         assert matrix.phase_engine.current_phase == PhaseState.STABILIZED
 
-    def test_process_input_long(self):
-        """Test processing long input."""
+    def test_process_input_high_entropy(self):
+        """Test processing information-dense input triggers PHASE_SYNC."""
         matrix = DriveMatrix()
-        result = matrix.process_input("x" * 150)
+        # JSON-like agent output: Shannon entropy ~4.5 bits, above the 3.5-bit threshold
+        high_entropy_input = '{"status": "completed", "agent": "agent-05", "task": "abc123def", "drift": false}'
+        result = matrix.process_input(high_entropy_input)
         assert result == MatrixState.PHASE_SYNC
 
     def test_process_input_invalid(self):
