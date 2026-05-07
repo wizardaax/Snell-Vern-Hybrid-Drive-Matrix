@@ -2263,9 +2263,9 @@ class ZiltrixAdapter(_FilesystemRepoAdapter):
     Houses AEON Engine v2.1 + 41 research PDFs. Routes AEON / glyph /
     cognition-research goals to the repo's runnable Python module.
 
-    AEON Sprint 1: dispatch("aeon", ...) calls aeon_engine.aeon_summary()
-    and returns the full thrust series + validation — real computation, not
-    a scaffold acknowledgement.
+    AEON Sprint 1+3: dispatch("aeon", ...) calls aeon_thrust_series(n_steps=10)
+    for extended 10-point ramp series + validate_against_phaseii for PhaseII
+    reference check — real computation, not a scaffold acknowledgement.
     """
 
     REPO_NAME = "ziltrix-sch-core"
@@ -2301,40 +2301,59 @@ class ZiltrixAdapter(_FilesystemRepoAdapter):
         self._task_log[task_id] = out
         return out
 
+    _AEON_N_STEPS = 10  # Sprint 3: extended series (was 5/PhaseII ref)
+
     def _dispatch_aeon(self, payload: dict[str, _Any]) -> dict[str, _Any]:
-        """Call aeon_engine.aeon_summary() from the ziltrix-sch-core repo."""
+        """Sprint 3: call aeon_thrust_series(n_steps=10) for extended ramp series."""
         import sys
         engine_path = self.REPO_PATH
         if engine_path not in sys.path:
             sys.path.insert(0, engine_path)
         try:
-            import importlib
-            # Reload in case the module was already cached from another path
             if "aeon_engine" not in sys.modules:
                 import aeon_engine  # type: ignore[import-not-found]
             else:
                 aeon_engine = sys.modules["aeon_engine"]  # type: ignore[assignment]
-            summary = aeon_engine.aeon_summary()
+            # Extended series — 10 steps shows full resonant ramp
+            samples  = aeon_engine.aeon_thrust_series(n_steps=self._AEON_N_STEPS)
+            series   = [{"t": s.t, "phi": s.phi, "thrust": s.thrust} for s in samples]
+            # Validate against PhaseII 5-pt reference points
+            val_raw  = aeon_engine.validate_against_phaseii(samples[:5])
+            consts   = {
+                "phi":              aeon_engine.PHI,
+                "golden_angle_deg": aeon_engine.GOLDEN_ANGLE_DEG,
+                "psi_resonance":    aeon_engine.PSI_RESONANCE,
+                "alpha_inv":        aeon_engine.ALPHA_INV,
+                "n3_medium":        aeon_engine.N3_MEDIUM,
+                "omega_n":          aeon_engine.OMEGA_N,
+                "drive_freq_hz":    aeon_engine.DRIVE_FREQ_HZ,
+                "coupling_k":       aeon_engine.COUPLING_K,
+            }
+            validation = {
+                "matched":     bool(val_raw.get("matched", False)),
+                "max_rel_err": float(val_raw.get("max_rel_err") or 0.0),
+            }
             task_id = _generate_task_id("aeon", payload)
             out = {
-                "status": "completed",
-                "task_id": task_id,
-                "task_type": "aeon",
-                "repo": self.REPO_NAME,
-                "action": "aeon",
-                "ran": True,
-                "constants": summary["constants"],
-                "thrust_series": summary["thrust_series"],
-                "validation": summary["validation"],
+                "status":       "completed",
+                "task_id":      task_id,
+                "task_type":    "aeon",
+                "repo":         self.REPO_NAME,
+                "action":       "aeon",
+                "ran":          True,
+                "constants":    consts,
+                "thrust_series": series,
+                "validation":   validation,
+                "n_steps":      self._AEON_N_STEPS,
             }
             self._task_log[task_id] = out
             return out
         except Exception as exc:
             return {
-                "status": "error",
+                "status":    "error",
                 "task_type": "aeon",
-                "repo": self.REPO_NAME,
-                "action": "aeon",
-                "ran": False,
-                "reason": str(exc),
+                "repo":      self.REPO_NAME,
+                "action":    "aeon",
+                "ran":       False,
+                "reason":    str(exc),
             }

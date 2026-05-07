@@ -679,9 +679,9 @@ class TestCLIMesh:
 
 
 class TestZiltrixAdapter:
-    """AEON Sprint 1: ZiltrixAdapter.dispatch('aeon', ...) must call
-    aeon_engine.aeon_summary() and return real thrust + validation data,
-    not a scaffold acknowledgement."""
+    """AEON Sprint 1+3: ZiltrixAdapter.dispatch('aeon', ...) calls
+    aeon_thrust_series(n_steps=10) for extended series + validate_against_phaseii.
+    Returns real thrust + validation data, not a scaffold acknowledgement."""
 
     def test_aeon_dispatch_status_completed(self) -> None:
         from snell_vern_matrix.federation.adapters import ZiltrixAdapter
@@ -747,6 +747,25 @@ class TestZiltrixAdapter:
         mesh = create_default_mesh()
         result = mesh.dispatch("aeon", {})
         assert result["routed"] is True
+
+    def test_aeon_dispatch_extended_10_steps(self) -> None:
+        """Sprint 3: series must have exactly 10 steps."""
+        from snell_vern_matrix.federation.adapters import ZiltrixAdapter
+        a = ZiltrixAdapter()
+        r = a.dispatch("aeon", {})
+        series = r.get("thrust_series", [])
+        assert len(series) == 10, f"Sprint 3 expects 10-step series, got {len(series)}"
+        assert r.get("n_steps") == 10
+
+    def test_aeon_dispatch_peak_thrust_larger_than_first(self) -> None:
+        """Extended ramp: final thrust magnitude must exceed first step."""
+        from snell_vern_matrix.federation.adapters import ZiltrixAdapter
+        a = ZiltrixAdapter()
+        r = a.dispatch("aeon", {})
+        series = r["thrust_series"]
+        first_abs = abs(series[0]["thrust"])
+        last_abs  = abs(series[-1]["thrust"])
+        assert last_abs > first_abs, f"ramp should grow: {first_abs:.3e} → {last_abs:.3e}"
 
     def test_unsupported_task_type_rejected(self) -> None:
         from snell_vern_matrix.federation.adapters import ZiltrixAdapter
