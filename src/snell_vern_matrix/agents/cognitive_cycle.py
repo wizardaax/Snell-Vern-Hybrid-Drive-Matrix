@@ -64,6 +64,15 @@ _KEYWORD_MAP: dict[str, TaskType] = {
     "ci": TaskType.CI_HEALTH,
     "build": TaskType.CI_HEALTH,
     "coheren": TaskType.COHERENCE,
+    "coordinat": TaskType.COORDINATION,
+    "orchestrat": TaskType.COORDINATION,
+    "route": TaskType.COORDINATION,
+    "dispatch": TaskType.COORDINATION,
+    "cypher": TaskType.COORDINATION,
+    "cipher": TaskType.COORDINATION,
+    "crypto": TaskType.COORDINATION,
+    "kryptos": TaskType.COORDINATION,
+    "worm": TaskType.COORDINATION,
 }
 
 # Tasks always added: observe before, recall corpus mid-cycle, monitor coherence after.
