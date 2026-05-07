@@ -671,3 +671,85 @@ class TestCLIMesh:
         data = json.loads(out)
         assert "global_coherence" in data
         assert "drift" in data
+
+
+# =========================================================================
+# ZiltrixAdapter — AEON Sprint 1: live dispatch to aeon_engine.py
+# =========================================================================
+
+
+class TestZiltrixAdapter:
+    """AEON Sprint 1: ZiltrixAdapter.dispatch('aeon', ...) must call
+    aeon_engine.aeon_summary() and return real thrust + validation data,
+    not a scaffold acknowledgement."""
+
+    def test_aeon_dispatch_status_completed(self) -> None:
+        from snell_vern_matrix.federation.adapters import ZiltrixAdapter
+        a = ZiltrixAdapter()
+        r = a.dispatch("aeon", {})
+        assert r["status"] == "completed"
+        assert r.get("ran") is True
+
+    def test_aeon_dispatch_returns_thrust_series(self) -> None:
+        from snell_vern_matrix.federation.adapters import ZiltrixAdapter
+        a = ZiltrixAdapter()
+        r = a.dispatch("aeon", {})
+        series = r.get("thrust_series", [])
+        assert isinstance(series, list)
+        assert len(series) >= 1
+        assert "thrust" in series[0]
+
+    def test_aeon_dispatch_thrust_negative(self) -> None:
+        from snell_vern_matrix.federation.adapters import ZiltrixAdapter
+        a = ZiltrixAdapter()
+        r = a.dispatch("aeon", {})
+        thrust = r["thrust_series"][0]["thrust"]
+        assert thrust < 0, f"expected negative thrust (propulsion frame), got {thrust}"
+
+    def test_aeon_dispatch_validation_passes(self) -> None:
+        from snell_vern_matrix.federation.adapters import ZiltrixAdapter
+        a = ZiltrixAdapter()
+        r = a.dispatch("aeon", {})
+        val = r.get("validation", {})
+        assert val.get("matched") is True, f"validation failed: {val}"
+
+    def test_aeon_dispatch_max_rel_err_under_10pct(self) -> None:
+        from snell_vern_matrix.federation.adapters import ZiltrixAdapter
+        a = ZiltrixAdapter()
+        r = a.dispatch("aeon", {})
+        err = r["validation"].get("max_rel_err", 1.0)
+        assert err < 0.10, f"max_rel_err {err:.3%} >= 10%"
+
+    def test_aeon_dispatch_has_constants(self) -> None:
+        from snell_vern_matrix.federation.adapters import ZiltrixAdapter
+        a = ZiltrixAdapter()
+        r = a.dispatch("aeon", {})
+        consts = r.get("constants", {})
+        assert "phi" in consts
+        assert "coupling_k" in consts
+
+    def test_aeon_dispatch_generates_task_id(self) -> None:
+        from snell_vern_matrix.federation.adapters import ZiltrixAdapter
+        a = ZiltrixAdapter()
+        r = a.dispatch("aeon", {})
+        assert r.get("task_id"), "task_id should be non-empty"
+
+    def test_aeon_dispatch_logged_in_task_log(self) -> None:
+        from snell_vern_matrix.federation.adapters import ZiltrixAdapter
+        a = ZiltrixAdapter()
+        r = a.dispatch("aeon", {})
+        task_id = r["task_id"]
+        recalled = a.recall(task_id)
+        assert recalled is not None
+        assert recalled["task_id"] == task_id
+
+    def test_aeon_via_default_mesh(self) -> None:
+        mesh = create_default_mesh()
+        result = mesh.dispatch("aeon", {})
+        assert result["routed"] is True
+
+    def test_unsupported_task_type_rejected(self) -> None:
+        from snell_vern_matrix.federation.adapters import ZiltrixAdapter
+        a = ZiltrixAdapter()
+        r = a.dispatch("unknown_type", {})
+        assert r["status"] == "rejected"

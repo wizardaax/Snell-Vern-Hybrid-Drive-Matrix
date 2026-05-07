@@ -2260,8 +2260,13 @@ class XovaAdapter(_FilesystemRepoAdapter):
 
 class ZiltrixAdapter(_FilesystemRepoAdapter):
     """Ziltrix Sentinel Cognitive Hybridiser at D:\\github\\wizardaax\\ziltrix-sch-core.
-    Houses AEON Engine v2.1 + 41 research PDFs. Adapter routes AEON / glyph /
-    cognition-research goals to the repo's runnable Python module."""
+    Houses AEON Engine v2.1 + 41 research PDFs. Routes AEON / glyph /
+    cognition-research goals to the repo's runnable Python module.
+
+    AEON Sprint 1: dispatch("aeon", ...) calls aeon_engine.aeon_summary()
+    and returns the full thrust series + validation — real computation, not
+    a scaffold acknowledgement.
+    """
 
     REPO_NAME = "ziltrix-sch-core"
     REPO_PATH = r"D:\github\wizardaax\ziltrix-sch-core"
@@ -2271,7 +2276,65 @@ class ZiltrixAdapter(_FilesystemRepoAdapter):
     def coherence_score(self) -> float:
         if not self.is_available():
             return 0.0
-        # Look for the canonical aeon_engine.py module — its presence is the
-        # signal that the runnable substrate is wired.
         mod = _os.path.join(self.REPO_PATH, "aeon_engine.py")
         return 0.9 if _os.path.exists(mod) else 0.5
+
+    def dispatch(self, task_type: str, payload: dict[str, _Any]) -> dict[str, _Any]:
+        if not self.is_available():
+            return {"status": "error", "error": f"ziltrix-sch-core not on disk at {self.REPO_PATH}"}
+        if task_type not in self.supported_task_types:
+            return {"status": "rejected", "reason": f"task_type {task_type!r} not supported",
+                    "supported": sorted(self.supported_task_types)}
+
+        if task_type == "aeon":
+            return self._dispatch_aeon(payload)
+
+        # Other task types — scaffold acknowledgement until real dispatch is needed
+        task_id = _generate_task_id(task_type, payload)
+        out = {
+            "status": "acknowledged",
+            "task_id": task_id,
+            "task_type": task_type,
+            "repo": self.REPO_NAME,
+            "note": f"task_type {task_type!r} — scaffold; aeon is the live path",
+        }
+        self._task_log[task_id] = out
+        return out
+
+    def _dispatch_aeon(self, payload: dict[str, _Any]) -> dict[str, _Any]:
+        """Call aeon_engine.aeon_summary() from the ziltrix-sch-core repo."""
+        import sys
+        engine_path = self.REPO_PATH
+        if engine_path not in sys.path:
+            sys.path.insert(0, engine_path)
+        try:
+            import importlib
+            # Reload in case the module was already cached from another path
+            if "aeon_engine" not in sys.modules:
+                import aeon_engine  # type: ignore[import-not-found]
+            else:
+                aeon_engine = sys.modules["aeon_engine"]  # type: ignore[assignment]
+            summary = aeon_engine.aeon_summary()
+            task_id = _generate_task_id("aeon", payload)
+            out = {
+                "status": "completed",
+                "task_id": task_id,
+                "task_type": "aeon",
+                "repo": self.REPO_NAME,
+                "action": "aeon",
+                "ran": True,
+                "constants": summary["constants"],
+                "thrust_series": summary["thrust_series"],
+                "validation": summary["validation"],
+            }
+            self._task_log[task_id] = out
+            return out
+        except Exception as exc:
+            return {
+                "status": "error",
+                "task_type": "aeon",
+                "repo": self.REPO_NAME,
+                "action": "aeon",
+                "ran": False,
+                "reason": str(exc),
+            }
